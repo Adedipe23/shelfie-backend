@@ -1,0 +1,44 @@
+# Files and directories to ignore during development file watching
+
+# Log files
+*.log
+logs/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+
+# Git
+.git/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test cache
+.pytest_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Environment files
+.env
+.env.*
+
+# Temporary files
+*.tmp
+*.temp
