@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  test:
+    build: .
+    command: pytest -v
+    volumes:
+      - .:/app
+    environment:
+      - ENV_MODE=testing
+      - SQLITE_DATABASE_URI=sqlite+aiosqlite:///:memory:
+      - SECRET_KEY=test_secret_key
+      - LOG_LEVEL=DEBUG
+    networks:
+      - test-network
+
+networks:
+  test-network:

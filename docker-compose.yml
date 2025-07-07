@@ -1,0 +1,75 @@
+services:
+  isms-api:
+    build:
+      context: .
+    expose:
+      - '8000'
+    environment:
+      # Application settings
+      - ENV_MODE=production
+      - PROJECT_NAME=${PROJECT_NAME:-Integrated Supermarket Management System (ISMS)}
+      - VERSION=${VERSION:-0.1.0}
+      - DESCRIPTION=${DESCRIPTION:-Backend API for the Integrated Supermarket Management System}
+      
+      # API configuration
+      - API_V1_STR=${API_V1_STR:-/api/v1}
+      
+      # Database configuration (External PostgreSQL)
+      - POSTGRES_SERVER=${POSTGRES_SERVER}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      
+      # Security settings
+      - SECRET_KEY=${SECRET_KEY}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-11520}
+      - SECURE_HEADERS=${SECURE_HEADERS:-true}
+      - HTTPS_ONLY=${HTTPS_ONLY:-true}
+      - RATE_LIMIT_ENABLED=${RATE_LIMIT_ENABLED:-true}
+      
+      # CORS settings
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-["https://api.isms.helevon.org","https://isms.helevon.org","https://isms-ismsbackend-jc2q7s-1afe24-93-127-213-33.traefik.me"]}
+      
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONUNBUFFERED=1
+
+      # Production server settings
+      - WORKERS=${WORKERS:-4}
+    
+    labels:
+      - "traefik.enable=true"
+
+      # Production domain router
+      - "traefik.http.routers.isms-api-prod.rule=Host(`api.isms.helevon.org`)"
+      - "traefik.http.routers.isms-api-prod.priority=2"
+      - "traefik.http.routers.isms-api-prod.tls=true"
+      - "traefik.http.routers.isms-api-prod.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.isms-api-prod.service=isms-api"
+
+      # Traefik test domain router
+      - "traefik.http.routers.isms-api-test.rule=Host(`isms-ismsbackend-jc2q7s-1afe24-93-127-213-33.traefik.me`)"
+      - "traefik.http.routers.isms-api-test.priority=1"
+      - "traefik.http.routers.isms-api-test.service=isms-api"
+
+      # Service configuration
+      - "traefik.http.services.isms-api.loadbalancer.server.port=8000"
+    
+    volumes:
+      - ./logs:/app/logs
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    
+    restart: unless-stopped
+    
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true
